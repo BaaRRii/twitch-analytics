@@ -28,3 +28,32 @@ export async function getTwitchUserData(user_id) {
         throw e;
     }
 }
+
+export async function getTwitchStreamsData() {
+
+    const token = await getTwitchToken();
+    
+    try {
+        const res = await axios.get(
+            `https://api.twitch.tv/helix/streams`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Client-ID': process.env.TWITCH_CLIENT_ID
+                }
+            }
+        );
+
+        return res;
+
+    }
+    catch (err) {
+        if (err.response) {
+            throw err;
+        }
+
+        const e = new Error("Internal server error");
+        e.status = 500;
+        throw e;
+    }
+}

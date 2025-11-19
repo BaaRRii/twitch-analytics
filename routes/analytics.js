@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { getTwitchUserData } from '../twitch/twitchApi.js';
+import { getTwitchUserData, getTwitchStreamsData } from '../twitch/twitchApi.js';
 
 const router = express.Router();
 
@@ -24,8 +24,16 @@ router.get('/user', async (req, res) => {
     }
 });
 
-router.get('/streams', (req, res) => {
-    res.json({ message: 'Streams analytics endpoint' });
+router.get('/streams', async(req, res) => {
+    try {
+        const twitchRes = await getTwitchStreamsData();
+        res.json(twitchRes.data);
+    } 
+    
+    catch (error) {
+        console.error("Error fetching streams data:", error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 export default router;
