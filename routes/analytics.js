@@ -27,7 +27,14 @@ router.get('/user', async (req, res) => {
 router.get('/streams', async(req, res) => {
     try {
         const twitchRes = await getTwitchStreamsData();
-        res.json(twitchRes.data);
+
+        const filteredData = twitchRes.data?.map(stream => ({
+            title: stream.title,
+            user_name: stream.user_name,
+        })) || [];
+
+
+        res.json(filteredData);
     } 
     
     catch (error) {

@@ -3,11 +3,11 @@ import axios from 'axios';
 let accessToken = null;
 let expiresAt = null;
 
-export async function getTwitchToken() {
+export async function getTwitchToken(force = false) {
     const now = Date.now();
 
     // si token existe y no ha expirado
-    if (accessToken && now < expiresAt){
+    if ((accessToken && now < expiresAt)  && !force){
         return accessToken;
     }
 
@@ -23,9 +23,7 @@ export async function getTwitchToken() {
         // cachear token
         accessToken = res.data.access_token;
         expiresAt = now + res.data.expires_in * 1000;
-
-        console.log("access token:", accessToken, expiresAt);
-
+    
         return accessToken;
     }
     catch(err) {
