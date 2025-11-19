@@ -7,5 +7,10 @@
   },
   "author": "BaRRi",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0"
+  },
+  "type": "module"
 }
