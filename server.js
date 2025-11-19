@@ -8,6 +8,16 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
+// logger middleware
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} ${res.statusCode} - ${duration}ms`);
+    });
+    next();
+})
+
 app.get('/', (req, res) => {
     res.json({ message: 'healthy' });
 });

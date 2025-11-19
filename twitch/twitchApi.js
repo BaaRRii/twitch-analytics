@@ -26,7 +26,6 @@ async function twitchRequest(endpoint, params = {}, retry = true) {
             return twitchRequest(endpoint, params, false);
         }
 
-
         if (err.response){
             throw err;
         }
