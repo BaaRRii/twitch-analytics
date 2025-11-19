@@ -4,24 +4,55 @@ import { getTwitchUserData, getTwitchStreamsData } from '../twitch/twitchApi.js'
 
 const router = express.Router();
 
+
 router.get('/user', async (req, res) => {
+
     const userId = req.query.id;
 
-    if (!userId) {
-        return res.status(400).json({ 
-            error: "Invalid or missing 'id' parameter" 
+    // userId existe y es un número
+    if (!userId || !/^\d+$/.test(userId)) {
+        return res.status(400).json({
+            error: "Invalid or missing 'id' parameter."
         });
     }
 
-    try {
+    try{
         const twitchRes = await getTwitchUserData(userId);
-        res.json(twitchRes.data);
-    } 
-    
-    catch (error) {
-        console.error("Error fetching user data:", error);
-        res.status(500).json({ error: 'Internal server error' });
+
+        const user = twitchRes.data?.[0];
+        if (!user) {
+            return res.status(404).json({ error: "User not found." });
+        }
+
+        return res.json(user);
+
+    } catch (err) {
+        if (err.response) {
+            const { status, data } = err.response;
+
+            if (status === 401) {
+                return res.status(401).json({
+                    error: "Unauthorized. Twitch access token is invalid or has expired."
+                });
+            }
+
+            if (status === 400){
+                return res.status(400).json({
+                    error: "Invalid or missing 'id' parameter."
+                });
+            }
+
+            return res.status(status).json({
+                error: data?.error || "Twitch API error."
+            });
+        }
+
+        return res.status(500).json({
+            error: "Internal server error."
+        });
     }
+
+
 });
 
 router.get('/streams', async(req, res) => {
@@ -33,14 +64,27 @@ router.get('/streams', async(req, res) => {
             user_name: stream.user_name,
         })) || [];
 
-
-        res.json(filteredData);
-    } 
-    
-    catch (error) {
-        console.error("Error fetching streams data:", error);
-        res.status(500).json({ error: 'Internal server error' });
+        return res.json(filteredData);
     }
-});
+    catch (err) {
+        if (err.response) {
+            const { status, data } = err.response;
+            
+            if (status === 401) {
+                return res.status(401).json({
+                    error: "Unauthorized. Twitch access token is invalid or has expired."
+                });
+            }
+
+            return res.status(status).json({
+                error: data?.error || "Twitch API error."
+            });
+        }
+
+        return res.status(500).json({
+            error: "Internal server error."
+        });
+    }
+})
 
 export default router;
